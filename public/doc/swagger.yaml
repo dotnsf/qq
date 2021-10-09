@@ -1,0 +1,233 @@
+swagger: '2.0'
+info:
+  description: QQ API ドキュメント
+  version: 0.0.1
+  title: QQ REST APIs
+host: localhost:8080
+basePath: /api
+tags:
+  - name: question
+    description: Question related API
+  - name: answer
+    description: Answer related API
+schemes:
+  - http
+  - https
+paths:
+  /question:
+    post:
+      tags:
+        - question
+      summary: 質問作成
+      description: 質問作成
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/QuestionRequest'
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+  /question/{id}:
+    get:
+      tags:
+        - question
+      summary: 質問取得
+      description: 質問取得
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: 質問 ID
+          required: true
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+    put:
+      tags:
+        - question
+      summary: 質問更新
+      description: 質問更新
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: 質問 ID
+          required: true
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/QuestionRequest'
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+    delete:
+      tags:
+        - question
+      summary: 質問削除
+      description: 質問削除
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: 質問 ID
+          required: true
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+  /questions/{user_id}:
+    get:
+      tags:
+        - question
+      summary: 特定ユーザーの質問取得
+      description: 特定ユーザーの質問取得
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          type: string
+          in: path
+          description: ユーザー ID
+          required: true
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+  /answer:
+    post:
+      tags:
+        - answer
+      summary: 回答作成
+      description: 回答作成
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/AnswerRequest'
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+  /answer/{id}:
+    get:
+      tags:
+        - answer
+      summary: 回答取得
+      description: 回答取得
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: 回答 ID
+          required: true
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+    put:
+      tags:
+        - answer
+      summary: 回答更新
+      description: 回答更新
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: 回答 ID
+          required: true
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/AnswerRequest'
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+    delete:
+      tags:
+        - answer
+      summary: 回答削除
+      description: 回答削除
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          type: string
+          in: path
+          description: 回答 ID
+          required: true
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+  /answers/{question_id}:
+    get:
+      tags:
+        - answer
+      summary: 特定質問の回答問取得
+      description: 特定質問の回答取得
+      produces:
+        - application/json
+      parameters:
+        - name: question_id
+          type: string
+          in: path
+          description: 質問 ID
+          required: true
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: エラー
+definitions:
+  QuestionRequest:
+    type: object
+    properties:
+      questions:
+        type: array
+        description: 質問
+      type:
+        type: string
+        description: "question"
+      user_id:
+        type: string
+        description: ユーザーID
+  AnswerRequest:
+    type: object
+    properties:
+      question_id:
+        type: string
+        description: 質問ID
+      type:
+        type: string
+        description: "answer"
+      answers:
+        type: array
+        description: 回答

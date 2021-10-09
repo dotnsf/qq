@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<title>QQ</title>
+<script type="text/javascript" src="//code.jquery.com/jquery-2.2.4.min.js"></script>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+<script src="/common.js"></script>
+<link href="/common.css" rel="stylesheet"/>
+
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+<link rel="shortcut icon" href="/icon.png" type="image/png"/>
+<link rel="icon" href="/icon.png" type="image/png"/>
+<link rel="apple-touch-icon" href="/icon.png"/>
+
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="QQ"/>
+</head>
+<body>
+
+<nav class="navbar fixed-top">
+  <div class="navbar-header">
+  </div>
+  <div id="my-navbar">
+  </div>
+</nav>
+
+<div class="container">
+  <h1><%= question.label %></h1>
+  <table class="table" id="answer_list">
+    <thead>
+      <tr>
+        <th>#</th><th>answer</th>
+      </tr>
+    </thead>
+    <tbody id="answer_list_tbody">
+<% for( var i = 0; i < question.questions.length; i ++ ){ %>
+      <tr>
+        <td><%= question.questions[i].text %></td>
+        <td>
+<% if( question.questions[i].type == 'text' ){ %>
+          <textarea id="answer_<%= i %>" class="form-control"></textarea>
+<% }else{
+     if( question.questions[i].min && question.questions[i].max ){ %>
+          <input type="range" id="answer_<%= i %>" name="answer_<%= i %>" class="form-control" min="<%= question.questions[i].min %>" max="<%= question.questions[i].max %>" value="<%= question.questions[i].default %>"/><label id="answer_label_<%= i %>" for="answer_<%= i %>"><%= question.questions[i].default %></label>
+          <script>
+          $('#answer_<%= i %>').change( function(){
+            var v = $('#answer_<%= i %>').val();
+            $('#answer_label_<%= i %>').html( v );
+          });
+          </script>
+<%   }else{ %>
+          <input type="text" id="answer_<%= i %>" class="form-control" value=""/>
+<%   }
+   } %>
+        </td>
+      </tr>
+<% } %>
+    </tbody>
+  </table>
+  <button class="btn btn-success" onClick="save_answer();">Save</button>
+</div>
+
+<script>
+var uuid = generateUUID();
+
+var question_index = -1;
+
+$(function(){
+  init();
+});
+
+function init(){
+}
+
+function resized(){
+  var browserWidth = window.innerWidth;
+  var browserHeight = window.innerHeight;
+}
+
+function save_answer(){
+  var data = {
+    user_id: uuid,
+    question_id: '<%= qid %>',
+    answers: []
+  };
+  for( var i = 0; i <= <%= question.questions.length %>; i ++ ){
+    var answer = $('#answer_' + i ).val(); 
+    data.answers.push( answer );
+  }
+  console.log( 'data', data );
+  $.ajax({
+    url: '/api/answer',
+    type: 'POST',
+    data: data,
+    success: function( result ){
+      console.log( { result } );
+    },
+    error: function( e0, e1, e2 ){
+      console.log( e0, e1, e2 );
+    }
+  });
+}
+</script>
+</body>
+</html>
