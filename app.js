@@ -128,7 +128,7 @@ app.get( '/api/answers/:question_id', function( req, res ){
         var answers = [];
         body1.rows.forEach( function( doc ){
           var _doc = JSON.parse(JSON.stringify(doc.doc));
-          if( _doc.question_id && _doc.question_id == id ){
+          if( _doc.question_id && _doc.question_id == id && _doc.type == 'answer' ){
             answers.push( _doc );
           }
         });
@@ -180,7 +180,7 @@ app.get( '/api/questions/:user_id', function( req, res ){
         var questions = [];
         body1.rows.forEach( function( doc ){
           var _doc = JSON.parse(JSON.stringify(doc.doc));
-          if( _doc.user_id && _doc.user_id == id ){
+          if( _doc.user_id && _doc.user_id == id && _doc.type == 'question' ){
             questions.push( _doc );
           }
         });
@@ -359,7 +359,7 @@ app.delete( '/api/question/:question_id', function( req, res ){
 });
 
 
-app.get( '/', function( req, res ){
+app.get( '/a', function( req, res ){
   var qid = req.query.qid;
   if( qid ){
     db.get( qid, { include_docs: true }, function( err, body, header ){
@@ -375,7 +375,7 @@ app.get( '/', function( req, res ){
   }
 });
 
-app.get( '/q', function( req, res ){
+app.get( '/', function( req, res ){
   res.render( 'q', {} );
 });
 

@@ -37,10 +37,10 @@
 </nav>
 
 <div class="container">
-  <table class="" id="question_list">
+  <table class="table table-bordered" id="question_list">
     <thead>
       <tr>
-        <th>#</th><th>label</th><th>updated</th>
+        <th>#</th><th>label</th><th>updated</th><th>answers</th>
       </tr>
     </thead>
     <tbody id="question_list_tbody">
@@ -58,6 +58,18 @@
   <button class="btn btn-success" onClick="save_question();">Save</button>
 </div>
 
+<div class="modal bd-example-modal-lg fade" id="qqModal" tabindex="-1" role="dialog" aria-labbelledby="qqModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="qqModalLabel"></h4>
+      </div>
+      <div class="modal-body" id="qqmodal-body">
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 var uuid = generateUUID();
 
@@ -68,11 +80,23 @@ $(function(){
   add_next_question();
 
   if( uuid ){ //. #50
+    $('#question_list_tbody').html( '' );
     $.ajax({
       type: 'GET',
       url: '/api/questions/' + uuid,
       success: function( result ){
         console.log( result );
+        if( result && result.questions ){
+          for( var i = 0; i < result.questions.length; i ++ ){
+            var tr = '<tr>'
+              + "<td><input type='radio' class='question_list' value='" + result.questions[i]._id + "' onClick='select_question(" + JSON.stringify( result.questions[i] ) + ")'/>" + result.questions[i]._id + "</td>"
+              + '<td>' + result.questions[i].label + '</td>'
+              + '<td>' + timestamp2datetime( result.questions[i].updated ) + '</td>'
+              + '<td><button class="btn btn-danger" onClick="show_answers(\'' + result.questions[i]._id + '\', \'' + result.questions[i].label + '\')">answers</button></td>'
+              + '</tr>';
+            $('#question_list_tbody').append( tr );
+          }
+        }
       },
       error: function( e0, e1, e2 ){
         console.log( e0, e1, e2 );
@@ -93,7 +117,7 @@ function resized(){
 function add_next_question(){
   question_index ++;
 
-  var tr = '<tr id="tr_question_' + question_index + '"><td>質問 ' + question_index + '</td>'
+  var tr = '<tr class="tr_question" id="tr_question_' + question_index + '"><td>質問 ' + question_index + '</td>'
     + '<td><textarea id="question_text_' + question_index + '" class="form-control"></textarea></td>'
     + '<td>'
     + '<table class="table">'
@@ -132,6 +156,7 @@ function add_next_question(){
 }
 
 function save_question(){
+  var id = $('#question_body_id').val();
   var label = $('#question_body_label').val();
   var data = {
     user_id: uuid,
@@ -154,17 +179,107 @@ function save_question(){
     data.questions.push( question );
   }
   console.log( 'data', data );
-  $.ajax({
-    url: '/api/question',
-    type: 'POST',
-    data: data,
-    success: function( result ){
-      console.log( { result } );
-    },
-    error: function( e0, e1, e2 ){
-      console.log( e0, e1, e2 );
+  if( id ){
+    $.ajax({
+      url: '/api/question/' + id,
+      type: 'PUT',
+      data: data,
+      success: function( result ){
+        console.log( { result } );
+      },
+      error: function( e0, e1, e2 ){
+        console.log( e0, e1, e2 );
+      }
+    });
+  }else{
+    $.ajax({
+      url: '/api/question',
+      type: 'POST',
+      data: data,
+      success: function( result ){
+        console.log( { result } );
+      },
+      error: function( e0, e1, e2 ){
+        console.log( e0, e1, e2 );
+      }
+    });
+  }
+}
+
+function select_question( question ){
+  if( question ){
+    $('#question_body_id').val( question._id );
+    $('#question_body_label').val( question.label );
+
+    $('.tr_question').remove();
+
+    for( var i = 0; i < question.questions.length; i ++ ){
+      var tr = '<tr class="tr_question" id="tr_question_' + i + '"><td>質問 ' + i + '</td>'
+        + '<td><textarea id="question_text_' + i + '" class="form-control">' + question.questions[i].text + '</textarea></td>'
+        + '<td>'
+        + '<table class="table">'
+        + '<tr><td>回答タイプ</td><td>'
+        + '<select id="question_' + i + '_type" idx="' + i + '" class="question_type"><option value="number"' + ( question.questions[i].type == "number" ? ' selected' : '' ) + '>数字</option><option value="text"' + ( question.questions[i].type == "text" ? ' selected' : '' ) + '>テキスト</option></select>'
+        + '</td></tr>'
+        + '<tr id="question_' + i + '_tr_default"><td>デフォルト値</td><td>'
+        + '<input type="text" id="question_' + i + '_default" value="' + question.questions[i].default + '"/>'
+        + '</td></tr>'
+        + '<tr id="question_' + i + '_tr_min"><td>最小値</td><td>'
+        + '<input type="text" id="question_' + i + '_min" value="' + question.questions[i].min + '"/>'
+        + '</td></tr>'
+        + '<tr id="question_' + i + '_tr_max"><td>最大値</td><td>'
+        + '<input type="text" id="question_' + i + '_max" value="' + question.questions[i].max + '"/>'
+        + '</td></tr>'
+        + '</table>'
+        + '</td></tr>';
+      $('#question_body_tbody').append( tr );
     }
-  });
+    question_index = question.questions.length - 1;
+  }
+}
+
+function show_answers( question_id, question_label ){
+  if( question_id ){
+    $('#qqModalLabel').html( question_label );
+    $('#qqmodal-body').html( '' );
+    $.ajax({
+      url: '/api/answers/' + question_id,
+      type: 'GET',
+      success: function( result ){
+        console.log( result );
+        if( result && result.status && result.answers ){
+          var table = '<table class="table table-bordered">'
+            + '<thead>'
+            + '<tr><th>#</th>';
+          for( var i = 0; i < result.answers.length; i ++ ){
+            var answer = result.answers[i];
+            if( i == 0 ){
+              for( var j = 0; j < answer.answers.length; j ++ ){
+                table += '<th>Q' + j + '</th>';
+              }
+              table += '<th>created</th></tr></thead><tbody>';
+            }
+
+            var tr = '<tr>'
+              + '<td>' + i + '</td>';
+            for( var j = 0; j < answer.answers.length; j ++ ){
+              tr += '<td>' + answer.answers[j] + '</td>';
+            }
+            tr += '<td>' + timestamp2datetime( answer.created ) + '</td></tr>';
+
+            table += tr;
+          }
+          table += '</tbody></table>';
+          $('#qqmodal-body').html( table );
+        }
+
+        $('#qqModal').modal();
+      },
+      error: function( e0, e1, e2 ){
+        console.log( e0, e1, e2 );
+      }
+    });
+  }
 }
 </script>
 </body>
