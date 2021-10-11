@@ -63,7 +63,7 @@
 <% } %>
     </tbody>
   </table>
-  <button class="btn btn-success" onClick="save_answer();">Save</button>
+  <button id="save_btn" class="btn btn-success" onClick="save_answer();">送信</button>
 </div>
 
 <script>
@@ -101,7 +101,7 @@ function save_answer(){
     success: function( result ){
       console.log( { result } );
       alert( 'アンケートに回答いただきありがとうございました。' );
-      window.close();
+      $('#save_btn').css( 'display', 'none' );
     },
     error: function( e0, e1, e2 ){
       console.log( e0, e1, e2 );
