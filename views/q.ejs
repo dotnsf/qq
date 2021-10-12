@@ -85,7 +85,7 @@ $(function(){
       type: 'GET',
       url: '/api/questions/' + uuid,
       success: function( result ){
-        console.log( result );
+        //console.log( result );
         if( result && result.questions ){
           for( var i = 0; i < result.questions.length; i ++ ){
             var tr = '<tr>'
@@ -248,7 +248,7 @@ function show_answers( question_id, question_label ){
       url: '/api/answers/' + question_id,
       type: 'GET',
       success: function( result ){
-        console.log( result );
+        //console.log( result );
         if( result && result.status && result.answers ){
           var table = '<table class="table table-bordered">'
             + '<thead>'
