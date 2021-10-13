@@ -88,11 +88,20 @@ $(function(){
         //console.log( result );
         if( result && result.questions ){
           for( var i = 0; i < result.questions.length; i ++ ){
+            var questions = '[';
+            for( var j = 0; j < result.questions[i].questions.length; j ++ ){
+              if( j > 0 ){
+                questions += ',';
+              } 
+              questions += '\'' + result.questions[i].questions[j].text + '\'';
+            }
+            questions += ']';
+
             var tr = '<tr>'
               + "<td><input type='radio' class='question_list' value='" + result.questions[i]._id + "' onClick='select_question(" + JSON.stringify( result.questions[i] ) + ")'/>" + result.questions[i]._id + "</td>"
               + '<td>' + result.questions[i].label + '</td>'
               + '<td>' + timestamp2datetime( result.questions[i].updated ) + '</td>'
-              + '<td><button class="btn btn-danger" onClick="show_answers(\'' + result.questions[i]._id + '\', \'' + result.questions[i].label + '\')">answers</button></td>'
+              + '<td><button class="btn btn-danger" onClick="show_answers(\'' + result.questions[i]._id + '\', \'' + result.questions[i].label + '\', ' + questions + ')">answers</button></td>'
               + '</tr>';
             $('#question_list_tbody').append( tr );
           }
@@ -240,7 +249,7 @@ function select_question( question ){
   }
 }
 
-function show_answers( question_id, question_label ){
+function show_answers( question_id, question_label, question_questions ){
   if( question_id ){
     $('#qqModalLabel').html( question_label );
     $('#qqmodal-body').html( '' );
@@ -253,14 +262,22 @@ function show_answers( question_id, question_label ){
           var table = '<table class="table table-bordered">'
             + '<thead>'
             + '<tr><th>#</th>';
+
+          for( var j = 0; j < question_questions.length; j ++ ){
+            table += '<th>Q' + j + ' ' + question_questions[j] + '</th>';
+          }
+          table += '<th>created</th></tr></thead><tbody>';
+
           for( var i = 0; i < result.answers.length; i ++ ){
             var answer = result.answers[i];
+            /*
             if( i == 0 ){
               for( var j = 0; j < answer.answers.length; j ++ ){
                 table += '<th>Q' + j + '</th>';
               }
               table += '<th>created</th></tr></thead><tbody>';
             }
+            */
 
             var tr = '<tr>'
               + '<td>' + i + '</td>';
