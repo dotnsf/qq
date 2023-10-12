@@ -85,7 +85,6 @@ $(function(){
       type: 'GET',
       url: '/api/questions/' + uuid,
       success: function( result ){
-        //console.log( result );
         if( result && result.questions ){
           for( var i = 0; i < result.questions.length; i ++ ){
             var questions = '[';
@@ -146,7 +145,6 @@ function add_next_question(){
     + '</td></tr>';
   $('#question_body_tbody').append( tr );
 
-  //$('#question_' + question_index + '_type').change( function(){
   $('.question_type').change( function(){
     var q_idx = $(this).attr('idx');
     console.log( 'q_idx = ' + q_idx );
